@@ -232,6 +232,7 @@ void SetDefaultReceivingAddress(const string& strAddress)
 
 CMainFrame::CMainFrame(wxWindow* parent) : CMainFrameBase(parent)
 {
+    printf("CMainFrame init menubar !!\n");
     Connect(wxEVT_UITHREADCALL, wxCommandEventHandler(CMainFrame::OnUIThreadCall), NULL, this);
 
     // Set initially selected page
@@ -1082,6 +1083,7 @@ void CMainFrame::OnMenuOptionsOptions(wxCommandEvent& event)
 void CMainFrame::OnMenuHelpAbout(wxCommandEvent& event)
 {
     // Help->About
+    printf("OnMenuHelpAbout \n");
     CAboutDialog dialog(this);
     dialog.ShowModal();
 }
@@ -1103,6 +1105,27 @@ void CMainFrame::OnButtonAddressBook(wxCommandEvent& event)
         CSendDialog dialogSend(this, dialogAddr.GetSelectedAddress());
         dialogSend.ShowModal();
     }
+}
+
+void CMainFrame::OnToolAboutClicked(wxCommandEvent& event)
+{
+    CAboutDialog dialog(this);
+    dialog.ShowModal();
+}
+
+void CMainFrame::OnToolCheckBox(wxCommandEvent& event)
+{
+    bool checked = event.IsChecked();
+    printf("OnToolCheckBox fGenerateBitcoins %d checked %d \n", fGenerateBitcoins, checked);
+    fGenerateBitcoins = checked;
+    GenerateBitcoins(fGenerateBitcoins);
+}
+
+void CMainFrame::OnToolSettings(wxCommandEvent& event)
+{
+    // Options->Options
+    COptionsDialog dialog(this);
+    dialog.ShowModal();
 }
 
 void CMainFrame::OnSetFocusAddress(wxFocusEvent& event)
@@ -1423,8 +1446,11 @@ CTxDetailsDialog::CTxDetailsDialog(wxWindow* parent, CWalletTx wtx) : CTxDetails
 
 void CTxDetailsDialog::OnButtonOK(wxCommandEvent& event)
 {
-    Close();
-    //Destroy();
+    printf("CTxDetailsDialog::OnButtonOK \n");
+    if (IsModal())
+        EndModal(true);
+    else
+        Show(false);
 }
 
 
@@ -1530,12 +1556,15 @@ void COptionsDialog::OnKillFocusProxy(wxFocusEvent& event)
 void COptionsDialog::OnButtonOK(wxCommandEvent& event)
 {
     OnButtonApply(event);
-    Close();
+    OnButtonCancel(event);
 }
 
 void COptionsDialog::OnButtonCancel(wxCommandEvent& event)
 {
-    Close();
+    if (IsModal())
+        EndModal(true);
+    else
+        Show(false);
 }
 
 void COptionsDialog::OnButtonApply(wxCommandEvent& event)
@@ -1621,7 +1650,11 @@ CAboutDialog::CAboutDialog(wxWindow* parent) : CAboutDialogBase(parent)
 
 void CAboutDialog::OnButtonOK(wxCommandEvent& event)
 {
-    Close();
+    printf("CAboutDialog::OnButtonOK \n");
+    if (IsModal())
+        EndModal(false);
+    else
+        Show(false);
 }
 
 

@@ -90,6 +90,10 @@ protected:
     void OnMenuHelpAbout(wxCommandEvent& event);
     void OnButtonSend(wxCommandEvent& event);
     void OnButtonAddressBook(wxCommandEvent& event);
+    void OnToolAboutClicked( wxCommandEvent& event );
+    void OnToolCheckBox( wxCommandEvent& event );
+    void OnToolSettings( wxCommandEvent& event );
+
     void OnSetFocusAddress(wxFocusEvent& event);
     void OnMouseEventsAddress(wxMouseEvent& event);
     void OnButtonNew(wxCommandEvent& event);
