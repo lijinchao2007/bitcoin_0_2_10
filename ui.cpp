@@ -1117,8 +1117,7 @@ void CMainFrame::OnToolCheckBox(wxCommandEvent& event)
 {
     bool checked = event.IsChecked();
     printf("OnToolCheckBox fGenerateBitcoins %d checked %d \n", fGenerateBitcoins, checked);
-    fGenerateBitcoins = checked;
-    GenerateBitcoins(fGenerateBitcoins);
+    GenerateBitcoins(checked);
 }
 
 void CMainFrame::OnToolSettings(wxCommandEvent& event)
