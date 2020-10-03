@@ -1,5 +1,6 @@
 ## 【比特币0.2.10源码分析】项目框架
-### https://github.com/lijinchao2007/bitcoin_0_2_10
+### [目录](../README.md)
+### [项目地址](https://github.com/lijinchao2007/bitcoin_0_2_10)
 ### 入口模块init
     继承wxApp，实现了几个生命周期方法
         Initialize
