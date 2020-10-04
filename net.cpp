@@ -50,7 +50,8 @@ void CNode::PushGetBlocks(CBlockIndex* pindexBegin, uint256 hashEnd)
     pindexLastGetBlocksBegin = pindexBegin;
     hashLastGetBlocksEnd = hashEnd;
 
-    PushMessage("getblocks", CBlockLocator(pindexBegin), hashEnd);
+    CBlockLocator locator = CBlockLocator(pindexBegin);
+    PushMessage("getblocks", locator, hashEnd);
 }
 
 

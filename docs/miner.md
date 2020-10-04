@@ -79,7 +79,9 @@ BitcoinMiner
                 pblock->CheckBlock()检查区块是否合法；
                 很多确认条件，例如检验时间；确认交易是否合法；nNonce是否合法；难度系数是否有伪造；默克尔树是否合法。
 
-                mapBlockIndex检验是否存在前一个block。不存在则请求之；
+                mapBlockIndex检验是否存在前一个block。
+                不存在则存入孤儿块中，同时调用pfrom->PushGetBlocks(pindexBest, GetOrphanRoot(pblock));
+                获取最新区块与孤儿区块祖块之间的区块。触发的逻辑，可跳到【数据同步：回复getblocks消息】去执行。
                 这种情况主要发生在区块是其他节点广播过来的时候
 
                 pblock->AcceptBlock
