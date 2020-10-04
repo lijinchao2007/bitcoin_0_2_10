@@ -20,8 +20,9 @@
 ## [项目框架](./docs/arc.md)
 ## [比特币的一些疑惑](./docs/questions.md)
 ***
-## [节点管理](./docs/nodes.md)
-## [数据同步](./docs/data_sync.md)
-## [挖矿过程](./docs/miner.md)
-## [存储](./docs/db.md)
-## [交易流程](./docs/transaction.md)
+* - [ ]  [节点管理](./docs/nodes.md)
+* - [ ]  [数据同步](./docs/data_sync.md)
+* - [ ]  [挖矿过程](./docs/miner.md)
+* - [ ]  [存储](./docs/db.md)
+* - [x]  [交易流程](./docs/transaction.md)
+
