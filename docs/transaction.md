@@ -47,6 +47,28 @@ SendMoney 有4个参数。
         更新默认私钥
         插入vWalletUpdated，用于更新UI
 
+        mapRequestCount设定交易记录被请求次数
+
+        wtxNew.AcceptTransaction 
+            逻辑很多，留待详解
+            检验交易是否合法
+            ConnectInputs 处理db等很多业务在此
+
+        wtxNew.RelayWalletTransaction();
+            遍历vtxPrev，
+                所有前任存储成功的情况下，
+                调用RelayMessage(CInv(MSG_TX, hash), (CTransaction)tx)，中继广播交易。
+                    将tx转换为CDataStream，调用RelayMessage
+                        mapRelay存储inv和tx，并在vRelayExpiration中记录时间对
+                        调用RelayInventory
+                            遍历所有节点，调用PushInventory，广播交易记录
+                                setInventoryKnown中已经存在的过滤
+                                vInventoryToSend中插入inv
+                                在处理发送消息的时候，批量推送pto->PushMessage("inv", vInv)， vInv是vector<CInv>
+                                之所以PushInventory不直接发送区块广播，是想按批次广播。
+                                更详细的过程可参见【数据同步】
+
+            对当期交易执行RelayMessage，参加上文逻辑
     
 ```
 

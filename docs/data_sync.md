@@ -86,6 +86,13 @@ A回复B消息getdata，向B拉去最新的区块。
         清理mapAlreadyAskedFor
 
 ```
+
 ### 发起交易的同步过程
+[【比特币0.2.10源码分析】交易流程:RelayWalletTransaction](./transaction.md)
 
 ### 挖到新block的同步过程
+[【比特币0.2.10源码分析】挖矿过程:AcceptBlock](./minner.md)
+
+> 中继传播的逻辑未能在区块同步中体现，可参考发起交易中的记录同步过程。
+
+
