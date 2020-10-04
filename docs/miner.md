@@ -49,7 +49,7 @@ BitcoinMiner
             hash值小于hashTarget则挖矿成功，否则继续。
 
             如果tmp.block.nNonce加到最大也是不行，则break出循环，从新执行while循环。
-            下次变化的参数主要是nTime会变化，只到运气好挖到矿。
+            下次变化的参数主要是nTime，循环运行到挖矿成功。
             尤其需要注意的是，hash计算有很强的随机性，运气好很快，不好的时候会很久。
             10分钟出块的限定，只是按概率统计的平均值，虽然极端情况很少，但也会有。
             历史中，就有多次比特币几个小时才出块的情况发生，交易会临时积压，
@@ -65,7 +65,7 @@ BitcoinMiner
             交易速度的快慢，由出块速度和出块大小限制。
             而区块的同步到全网的时间，又跟区块的大小有关。
             记得有篇论文研究，1M大小同步全网大概是12s，中位数6m，越大越慢。
-            而同步慢的后果，会导致节点的不可信，降低算力共计的难度。
+            而同步慢的后果，会导致节点的不可信，降低算力攻击的难度。
             理论上是51%才能颠覆共识，会因为网络同步的缓慢，而降到更低的阈值。
             新的一些币种，都在降低出块时间，加大块的上限；以实现加速交易的目的
             所以，这就是为何一块要限制大小？为何比特币交易速度限制在一秒几笔？
@@ -85,13 +85,13 @@ BitcoinMiner
                 pblock->AcceptBlock
                     WriteToDisk 写入区块数据
                     AddToBlockIndex 写入区块索引数据
-                    循环vNodes节点，pnode->PushInventory(CInv(MSG_BLOCK, hash));广播新区块
+                    循环vNodes节点，pnode->PushInventory(CInv(MSG_BLOCK, hash)),广播新区块
                     区块分发可了解[【比特币0.2.10源码分析】数据同步](./data_sync.md)
 
                 到此基本完成挖矿了。
                 vWorkQueue这块的逻辑是针对接受到其他节点分发区块的时候处理的。
-                如果收到的当前块比较老，
-                有更新的块已经收到过，并当做孤儿块存入到mapOrphanBlocksByPrev中，
-                就可以执行孤儿块的AcceptBlock逻辑了，将孤儿块加入链中。
-                同时孤儿块hash加入vWorkQueue中，继续找寻可处理的孤儿块，直到vWorkQueue空。
+                如果收到的当前块B比较老，恰好曾经收到的新快A是B快的下一块。
+                A块收到的时候，由于前块B还不存在，被当做孤儿块存入到mapOrphanBlocksByPrev中。
+                此时，A块因为父块B已经存在，所以就可以执行孤儿块的AcceptBlock逻辑了，将孤儿块加入链中。
+                同时孤儿块A的hash加入vWorkQueue中，继续找寻依赖于A块的孤儿块，直到vWorkQueue空。
 ```
