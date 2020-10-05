@@ -1432,9 +1432,52 @@ CTxDetailsDialog::CTxDetailsDialog(wxWindow* parent, CWalletTx wtx) : CTxDetails
 
             strHTML += "<br><hr><br><b>Transaction:</b><br>";
             strHTML += HtmlEscape(wtx.ToString(), true);
+
+            // Find the block the tx is in
+            CBlockIndex* pindex = NULL;
+            map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(wtx.hashBlock);
+            if (mi != mapBlockIndex.end()){
+                pindex = (*mi).second;
+                strHTML += "<br><hr><br><b>CBlockIndex:</b><br>";
+                strHTML += HtmlEscape(pindex->ToString(), true);
+
+                CBlock blockTmp;
+                blockTmp.ReadFromDisk(pindex);
+                blockTmp.BuildMerkleTree();
+                strHTML += "<br><hr><br><b>CBlock:</b><br>";
+                strHTML += HtmlEscape(blockTmp.ToString(), true);
+
+                //pre
+                if(pindex->pprev != NULL){
+                    strHTML += "<br><hr><br><b>CBlockIndex.pprev:</b><br>";
+                    strHTML += HtmlEscape(pindex->pprev->ToString(), true);
+                    
+                    blockTmp.ReadFromDisk(pindex->pprev);
+                    blockTmp.BuildMerkleTree();
+                    strHTML += "<br><hr><br><b>CBlock.pprev:</b><br>";
+                    strHTML += HtmlEscape(blockTmp.ToString(), true);
+                }
+                if(pindex->pnext != NULL){
+                    strHTML += "<br><hr><br><b>CBlockIndex.pnext:</b><br>";
+                    strHTML += HtmlEscape(pindex->pnext->ToString(), true);
+
+                    blockTmp.ReadFromDisk(pindex->pnext);
+                    blockTmp.BuildMerkleTree();
+                    strHTML += "<br><hr><br><b>CBlock.pnext:</b><br>";
+                    strHTML += HtmlEscape(blockTmp.ToString(), true);
+                }
+            }
+
+            // CBlock blockTmp;
+            // // Load the block this tx is in
+            // CTxIndex txindex;
+            // if (!CTxDB("r").ReadTxIndex(wtx.GetHash(), txindex)){
+            //     if (!blockTmp.ReadFromDisk(txindex.pos.nFile, txindex.pos.nBlockPos)){
+            //         strHTML += "<br><hr><br><b>CBlock:</b><br>";
+            //         strHTML += HtmlEscape(blockTmp.ToString(), true);
+            //     }
+            // }
         }
-
-
 
         strHTML += "</font></html>";
         string(strHTML.begin(), strHTML.end()).swap(strHTML);

@@ -1018,11 +1018,10 @@ public:
         return true;
     }
 
-
-
-    void print() const
+    string ToString() const
     {
-        printf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%d)\n",
+        string str;
+        str += strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%d)\n",
             GetHash().ToString().substr(0,16).c_str(),
             nVersion,
             hashPrevBlock.ToString().substr(0,16).c_str(),
@@ -1031,15 +1030,20 @@ public:
             vtx.size());
         for (int i = 0; i < vtx.size(); i++)
         {
-            printf("  ");
-            vtx[i].print();
+            str += "  ";
+            str += vtx[i].ToString();
         }
-        printf("  vMerkleTree: ");
+        str += "  vMerkleTree: ";
         for (int i = 0; i < vMerkleTree.size(); i++)
-            printf("%s ", vMerkleTree[i].ToString().substr(0,6).c_str());
-        printf("\n");
+            str += strprintf("%s ", vMerkleTree[i].ToString().substr(0,6).c_str());
+        str += ("\n");
+        return str;
     }
 
+    void print() const
+    {
+        printf("%s\n", ToString().c_str());
+    }
 
     int64 GetBlockValue(int64 nFees) const;
     bool DisconnectBlock(CTxDB& txdb, CBlockIndex* pindex);

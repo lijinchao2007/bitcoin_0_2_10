@@ -30,11 +30,29 @@ BitcoinMiner
 
         CTransaction txNew; 创建coinbase tx
         auto_ptr<CBlock> pblock(new CBlock()); 创建block，将txNew作为区块的第一条记录。
-        遍历已有交易，查找需要打包的交易，插入到block的vtx中；限定size小于MAX_SIZE/2;
-        所以不会打包所有交易，这段循环查找逻辑还可再挖细节。
+        while (fFoundSomething && nBlockSize < MAX_SIZE/2)
+            遍历已有交易，查找需要打包的交易，插入到block的vtx中；限定size小于MAX_SIZE/2;
+            遍历mapTransactions（这个在AcceptTransaction收到交易记录时候会设置进去）
+                CoinBase记录跳过
+                map<uint256, CTxIndex> mapTestPool;临时定义了这个缓存，避免重复从db读取。
+                tx.ConnectInputs(txdb, mapTestPoolTmp, CDiskTxPos(1,1,1), 0, nFees, false, true, nMinFee)
+                    主要是检验交易是否合法
+                    不是coinbase
+                        遍历vin
+                            交易的前任记录是否存在
+                            交易的前任记录如果是coinbase，确认成熟可消费。
+                            VerifySignature(txPrev, *this, i) 检验签名
+                            交易前任记录的条目没有被花掉
+                            设置被花掉
+                            设置mapTestPool
+                            累计前任的总收入nValueIn
+                        同时统计交易费用：nValueIn-GetValueOut()
+                        累计到总费用
 
-        设定pblock的nBites，以及设定第一条记录的第一条in条目的金额，为GetBlockValue()的结果。
+        设定pblock的nBites，以及设定第一条记录的第一条in条目的金额，为GetBlockValue(nFees)的结果。
             GetBlockValue为(50 * COIN) >> (nBestHeight / 210000)，210000次大概是4年，所以4年减半，最终为0.
+            同时要加上上一步计算出的费用。
+            所以如果奖励为0，还是有交易费用可赚的。
         
         构造tmp结构体
 
