@@ -24,6 +24,7 @@
 * - [x]  [数据同步](./docs/data_sync.md)
 * - [x]  [挖矿过程](./docs/miner.md)
 * - [ ]  [存储](./docs/db.md)
-* - [ ]  [余额](./docs/balance.md)
+* - [x]  [余额](./docs/balance.md)
 * - [x]  [交易流程](./docs/transaction.md)
+* - [ ]  [默克尔树](./docs/merkle.md)
 
