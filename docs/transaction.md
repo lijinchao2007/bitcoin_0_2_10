@@ -74,5 +74,63 @@ SendMoney 有4个参数。
 
 > 签名的过程
 ```
-SignSignature 
+// 目标是要用pcoin的信息，生成签名信息，赋值给wtxNew.vin[nIn].scriptSig
+// 用了几条vout，就要生成几条vin
+
+
+int nIn = 0;
+foreach(CWalletTx* pcoin, setCoins)
+    for (int nOut = 0; nOut < pcoin->vout.size(); nOut++)
+        if (pcoin->vout[nOut].IsMine())
+            SignSignature(*pcoin, wtxNew, nIn++);
+                SignSignature5个参数的意义       
+                const CTransaction& txFrom ：支出来源
+                CTransaction& txTo ：需要签名的tx
+                unsigned int nIn ：txTo的vin的index
+                int nHashType ：header声明参数有默认值1 SIGHASH_ALL
+                CScript scriptPrereq 空脚本目前无用，可用于返回签名数据
+
+                uint256 hash = SignatureHash(scriptPrereq + txout.scriptPubKey, txTo, nIn, nHashType);
+                    准备复制txTo为txTmp，先将其他vin的scriptSig置空，而nIn的vin的scriptSig设置为scriptPubKey
+                    对txTmp序列化的数据,将nHashType放后面,进行hash，影响的变量主要是txout的scriptPubKey和nHashType。
+
+                Solver(txout.scriptPubKey, hash, nHashType, txin.scriptSig)
+                    找寻模板，进行pubkey验证的就略过，可参考【余额】一文。重点讲签名的一块
+
+                    vector<unsigned char> vchSig;
+                    if (!CKey::Sign(mapKeys[vchPubKey], hash, vchSig))
+                        return false;
+                    vchSig.push_back((unsigned char)nHashType);
+                    scriptSigRet << vchSig << vchPubKey
+                    不论是OP_PUBKEY，还是OP_PUBKEYHASH，过程都是获取秘钥，对hash值签名；
+                    签名调用的CKey::Sign方法的具体实现也是调用ECDSA_sign进行签名
+                    最终返回的scriptSigRet包含签名+nHashType和对应的公钥
+
+                txin.scriptSig = scriptPrereq + txin.scriptSig;
+                    scriptPrereq是空
+                    所以签名有两部分构成，第一部分是空的；第二部分是公钥脚本构成的txTmp的hash值的签名。
+                
+                EvalScript(txin.scriptSig + CScript(OP_CODESEPARATOR) + txout.scriptPubKey, txTo, nIn)
+                    验证签名的过程
+                    script包含了 签名+公钥+OP_CODESEPARATOR+scriptPubKey
+                    out的公钥脚本有三种，挖矿，UI转账，rpc转账
+                    key.GetPubKey() << OP_CHECKSIG
+                    scriptPubKey << OP_DUP << OP_HASH160 << hash160 << OP_EQUALVERIFY << OP_CHECKSIG;
+                    criptPubKey.SetBitcoinAddress(strAddress)最终也是跟二楼相同 
+                    *this << OP_DUP << OP_HASH160 << hash160 << OP_EQUALVERIFY << OP_CHECKSIG;
+
+                    所以eval执行第二种和第三种的过程是
+                    签名入栈
+                    公钥入栈
+                    OP_CODESEPARATOR 设置pbegincodehash
+                    OP_DUP复制公钥入栈
+                    OP_HASH160公钥转为160格式，替换公钥；栈内情况是签名，公钥，公钥hash
+                    hash160入栈
+                    OP_EQUALVERIFY比较两个hash160是否相等，确认签名的公钥匹配。出栈两个参数，还有签名和公钥。
+                    OP_CHECKSIG调用CheckSig(vchSig, vchPubKey, scriptCode, txTo, nIn, nHashType)，返回结果
+                        核心是调用key.Verify(SignatureHash(scriptCode, txTo, nIn, nHashType), vchSig)
+                        第一步是计算签名时候的hash，计算要求传入的scriptCode来自于CScript scriptCode(pbegincodehash, pend);
+                        恰好是OP_CODESEPARATOR只有的scriptPubKey，是跟生成签名的时候的输入数据一致的。
+
+                至此就完成了SignSignature，设置了txin的scriptSig，同时对签名做了验证。
 ```

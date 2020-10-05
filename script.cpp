@@ -937,6 +937,8 @@ bool Solver(const CScript& scriptPubKey, vector<pair<opcodetype, valtype> >& vSo
         {
             bool f1 = script1.GetOp(pc1, opcode1, vch1);
             bool f2 = script2.GetOp(pc2, opcode2, vch2);
+            printf("f1 %d opcode1 %s vch1 %d \n", f1, GetOpName(opcode1), vch1.size());
+            printf("f2 %d opcode2 %s vch2 %d \n", f2, GetOpName(opcode2), vch2.size());
             if (!f1 && !f2)
             {
                 // Success
