@@ -584,7 +584,12 @@ bool CWalletDB::LoadWallet()
                     ssValue >> wkey;
 
                 mapKeys[vchPubKey] = wkey.vchPrivKey;
-                mapPubKeys[Hash160(vchPubKey)] = vchPubKey;
+                uint160 key = Hash160(vchPubKey);
+                mapPubKeys[key] = vchPubKey;
+
+                // 将钱包中的pubkey，加入mapAddressBook中显示
+                string addr = Hash160ToAddress(key);
+                mapAddressBook[addr] = addr;
             }
             else if (strType == "defaultkey")
             {

@@ -36,7 +36,14 @@ BitcoinMiner
                 CoinBase记录跳过
                 map<uint256, CTxIndex> mapTestPool;临时定义了这个缓存，避免重复从db读取。
                 tx.ConnectInputs(txdb, mapTestPoolTmp, CDiskTxPos(1,1,1), 0, nFees, false, true, nMinFee)
-                    主要是检验交易是否合法
+                    主要是检验交易是否合法,这个方法不止挖矿使用,在将区块存储db时候也会调用，
+                    下面的方法就是写入区块后，再写入区块索引中
+                    写入索引过程中，先调用ConnectBlock，然后遍历交易，调用ConnectInputs，此时就是fBlock=true, fMiner=false了
+                        if (!WriteToDisk(!fClient, nFile, nBlockPos))
+                            return error("AcceptBlock() : WriteToDisk failed");
+                        if (!AddToBlockIndex(nFile, nBlockPos))
+                            return error("AcceptBlock() : AddToBlockIndex failed");
+                        
                     不是coinbase
                         遍历vin
                             交易的前任记录是否存在
